@@ -1,0 +1,388 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Let’s Build Something Great Together!",
+        "formDescription": "Tell us a bit about your goals and challenges. Once submitted, our AI-powered assistant will analyze your specific interests to generate a tailored welcome guide and solution overview. We don’t believe in generic introductions—expect a response that speaks directly to your needs.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "placeholder": "Enter Your Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "Enter Your Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Interest",
+              "fieldType": "textarea",
+              "placeholder": "Share Your Interest"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "401e399a-5c09-47f7-9d6d-d1091e73c5c6",
+      "name": "On form submission",
+      "webhookId": "a19e1007-7ead-4fa7-af27-f4cc2280eeb6"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "apptub4aXR5qhR3AW",
+          "mode": "list",
+          "cachedResultName": "Leads Database",
+          "cachedResultUrl": "https://airtable.com/apptub4aXR5qhR3AW"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh8peyfljXrhnLn",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/apptub4aXR5qhR3AW/tblh8peyfljXrhnLn"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Email": "={{ $json.Email }}",
+            "Interest": "={{ $json.Interest }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Interest",
+              "displayName": "Interest",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": false
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "af0996d5-ec90-4eb1-8385-e42dd6226fca",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "OE88NA5HlIktR8zi",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional sales assistant for a SaaS company. Your goal is to write a warm, personalized welcome email to a new lead.\n\nUse the following details:\n\nName: {{ $json.fields.Name }}\n\nInterest: {{ $json.fields.Interest }}\n\nGuidelines:\n\nKeep the tone friendly yet professional.\n\nSpecifically mention how our SaaS can help them with their interest in {{ $json.fields.Interest }}.\n\nKeep the email short (under 150 words).\n\nEnd with a clear call to action (e.g., inviting them for a demo).\n\nSign off as '[Your Name] from the Sales Team'.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8541f10b-60cb-4c2f-8059-1b41e0c62f5a",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        288
+      ],
+      "id": "ddca3caf-f559-4fe8-be2e-c42a14cbdf2b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VjjHMpIesgw7PVKy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Create a record').item.json.fields.Email }}",
+        "subject": "Thanks For Your Response",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "2bbdd710-186f-4e62-aef5-28554ede726d",
+      "name": "Send a message",
+      "webhookId": "352f6dee-7147-4bcb-b689-5791ccc1df65",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1vgwUCbJSrapDKrE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AL8DVD464",
+          "mode": "list",
+          "cachedResultName": "all-is-plc"
+        },
+        "text": "=\"🎉 Great News! নতুন একজন লিড আমাদের সাথে কানেক্ট হয়েছেন।\n\nনাম: {{ $('On form submission').item.json.Name }}\n\nবিষয়: {{ $('On form submission').item.json.Interest }}\n\nবিস্তারিত তথ্য এয়ারটেবলে আপডেট করা হয়েছে। চলুন কাজ শুরু করি! 💪\"",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        976,
+        0
+      ],
+      "id": "a2cc2c23-c3c4-47cd-bb29-5bec94f97c8f",
+      "name": "Send a message1",
+      "webhookId": "e3ec9d52-9fe5-459f-bffd-3c4b298124fe",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "1c6BvKJAjxJU1u0Z",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b0d2220d-a406-433f-a3ae-ed5eb0b00f03",
+              "leftValue": "={{ $('On form submission').item.json.Email }}",
+              "rightValue": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        864,
+        256
+      ],
+      "id": "036ce6b8-9515-407a-a1bd-3ccb1504f89f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Qv2T5HCXQsDMuU1tdNoOZZyoAVOnJk4OctdLZLBqTFQ",
+          "mode": "list",
+          "cachedResultName": "Ass 1 ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Qv2T5HCXQsDMuU1tdNoOZZyoAVOnJk4OctdLZLBqTFQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Invalid Emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Qv2T5HCXQsDMuU1tdNoOZZyoAVOnJk4OctdLZLBqTFQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invalid Emails": "={{ $('On form submission').item.json.Email }}"
+          },
+          "matchingColumns": [
+            "Invalid Emails"
+          ],
+          "schema": [
+            {
+              "id": "Invalid Emails",
+              "displayName": "Invalid Emails",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        352
+      ],
+      "id": "16bb25ec-cf3d-499a-bdee-59aa60152be2",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GChdiWzUeeqc8LXY",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b107c85a5807491aedbdd3c196c3bb6a72f2b1713173258229ed7804aa92c818"
+  }
+}
