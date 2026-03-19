@@ -1,10 +1,10 @@
-AI-Driven Customer Data Segmentation Workflow
+#AI-Driven Customer Data Segmentation Workflow
 This project is an automated data pipeline built using n8n that processes raw customer information, transforms it into a structured format, and segments leads based on geographical location.
 
-🚀 Overview
+#🚀 Overview
 The workflow automates the transition of customer data from static storage (CSV/Datastore) into Airtable, while applying logic to filter and categorize customers into specific regions (Bangladesh vs. International). This ensures that sales or marketing teams can target users with localized strategies immediately after data ingestion.
 
-Key Features
+#Key Features
 Automated Data Ingestion: Triggers manually or via schedule to pull from a customer datastore.
 
 Airtable Integration: Searches and synchronizes records for centralized data management.
@@ -61,5 +61,8 @@ AI Enrichment: Add an OpenAI node after the transformation to summarize customer
 
 Error Handling: Implement an Error Trigger to notify the admin if the Airtable API limit is reached.
 
-Author: 
-Topic: AI Automation & Lead Management
+Anika Raisa
+
+LinkedIn: https://www.linkedin.com/in/anikaraisabd/
+
+GitHub: https://github.com/anikaraisa11
