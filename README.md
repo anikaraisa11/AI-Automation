@@ -1,7 +1,7 @@
-🌍 Travel Planning Agent (Multi-Agent System)
+# 🌍 Travel Planning Agent (Multi-Agent System)
 An autonomous, multi-agent travel concierge built with Langflow that transforms a simple destination query into a comprehensive, 7-day travel itinerary. By leveraging specialized AI agents, the system researches local hotspots, performs budget calculations, and generates a professional markdown travel guide.
 
-📖 Overview
+# 📖 Overview
 The Travel Planning Agent is designed to solve the complexity of vacation planning. Instead of a single LLM trying to guess details, this system uses a collaborative workflow:
 
 Initial Researcher: Scrapes and processes web data for a specific location.
@@ -12,7 +12,7 @@ Calculator Tool: Ensures the budget breakdown is mathematically accurate.
 
 Travel Concierge (Final Agent): Aggregates all data into a polished 7-day plan with weather, packing lists, and logistics.
 
-🛠 Tech Stack
+# 🛠 Tech Stack
 Orchestration: Langflow (Low-code Multi-Agent Workflow)
 
 AI Models: OpenAI gpt-4o-mini (High-efficiency reasoning)
@@ -23,7 +23,7 @@ Calculator: For precise budget arithmetic.
 
 Environment: Python-based Langflow environment.
 
-⚙️ Key Features
+# ⚙️ Key Features
 Multi-Agent Chain of Thought: Uses a "Local Expert" to validate information before the "Concierge" finalizes the plan.
 
 Web-Enhanced Intelligence: The URL tool allows the agent to pull from live travel guides and blogs rather than relying solely on training data.
@@ -34,7 +34,7 @@ Dynamic Packing & Weather: Suggests clothing based on the anticipated conditions
 
 Automated Budgeting: Includes a structured cost breakdown for flights, stays, and meals.
 
-📥 How to Use
+# 📥 How to Use
 Import Flow: Download the .json flow file from this repository and upload it into your Langflow dashboard.
 
 API Configuration:
@@ -51,7 +51,7 @@ Type your destination (e.g., "Plan a 7-day trip to Tokyo, Japan with a moderate 
 
 Receive Output: The agent will output a formatted Markdown guide which you can copy/paste directly into your notes.
 
-🏗 Setup Instructions
+# 🏗 Setup Instructions
 Clone the Repo:
 
 Bash
@@ -67,7 +67,7 @@ Bash
 langflow run
 Load Project: Click "New Project" -> "Upload" and select the project file.
 
-🚀 Future Enhancements
+# 🚀 Future Enhancements
 Google Maps Integration: Automatically generate a shared map link with all pinned locations.
 
 Real-time Weather API: Replace static predictions with live 7-day forecasts.
@@ -76,7 +76,7 @@ Flight/Hotel Booking Hooks: Connect to Amadeus or Skyscanner APIs for live prici
 
 Multilingual Support: Allow the agent to provide itineraries in the local language of the destination.
 
-✍️ Author
+# ✍️ Author
 [Anika Raisa]
 
 Passionate about Agentic AI and making travel seamless.
