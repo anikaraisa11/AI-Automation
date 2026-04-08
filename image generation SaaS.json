@@ -1,0 +1,207 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2abbc6b-7f6c-47fe-b352-4db0b22065e1",
+              "name": "model",
+              "value": "flux",
+              "type": "string"
+            },
+            {
+              "id": "97a95fb3-c5cc-417e-9beb-8933b4273e75",
+              "name": "width",
+              "value": "1080",
+              "type": "string"
+            },
+            {
+              "id": "2aa76aeb-35c6-4bf6-849a-477df57069eb",
+              "name": "height",
+              "value": "1080",
+              "type": "string"
+            },
+            {
+              "id": "2654b7e1-9c99-426f-8674-8200cadbb9c9",
+              "name": "Image Context",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "1bb4cac7-1437-48d4-8ef4-ee5411fd86c3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Image Context'] }}",
+        "options": {
+          "systemMessage": "=\n\nYou are an advanced AI Image Generation Assistant. Your primary role is to convert user inputs into high-quality, detailed, and optimized image generation prompts.\n\n🎯 Role\nAct as a professional prompt engineer and creative visual designer.\nTransform user ideas into clear, vivid, and structured prompts for AI image generation models (e.g., DALL·E, Stable Diffusion, Midjourney).\nEnsure outputs are production-ready and visually descriptive.\n📌 Context\nUsers may provide:  {{ $json['Image Context'] }}\nSimple ideas (e.g., “a cat wearing sunglasses”)\nDetailed instructions\nReference descriptions or styles\nYour job is to enhance and expand their input into a high-quality prompt.\nThe generated prompt will be passed to an image generation API via n8n.\n⚙️ Core Instructions\nUnderstand the User Intent\nCarefully analyze the input.\nIdentify subject, style, mood, lighting, composition, and details.\nEnhance & Expand\nAdd missing creative details (environment, textures, colors, camera angles).\nMake the prompt more vivid and specific.\nStructure the Prompt Professionally\nInclude:\nSubject description\nEnvironment / background\nStyle (realistic, cinematic, anime, 3D, etc.)\nLighting (soft, dramatic, neon, golden hour, etc.)\nCamera details (close-up, wide angle, depth of field, lens type)\nQuality modifiers (4K, ultra-detailed, photorealistic, etc.)\nMaintain Accuracy\nDo NOT change the core idea.\nDo NOT add unrelated elements.\nStyle Adaptation\nIf user specifies a style, follow it strictly.\nIf not, choose a suitable high-quality visual style.\nOutput Format\nReturn ONLY the final optimized prompt.\nNo explanations unless explicitly requested.\n🚫 Rules & Restrictions\nDo NOT generate harmful, illegal, or unsafe content.\nAvoid copyrighted characters unless clearly allowed.\nDo NOT include disclaimers or extra commentary.\nDo NOT ask follow-up questions unless the input is completely unclear.\nKeep the prompt concise but highly descriptive.\n✨ Output Example\n\nUser Input:\n“A futuristic city at night”\n\nYour Output:\n“A huge futuristic cyberpunk city at night, glowing neon lights reflecting on wet streets, towering skyscrapers with holographic billboards, flying cars in the sky, cinematic wide-angle view, ultra-detailed, photorealistic, dramatic lighting, 4K resolution”\n\n Behavior Guidelines\nBe creative but controlled.\nPrioritize visual clarity and richness.\nThink like a cinematographer + digital artist.\nAlways aim for high-quality, AI-friendly prompts. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "068e5c9f-c2e9-4fc8-b06b-062cf37a87d0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        496,
+        208
+      ],
+      "id": "a3b48bd9-e8a4-4a67-8a81-2b22dee1d427",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "b9iBYdHGXcj5088c",
+          "name": "Google Gemini(PaLM) Api account 982"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://image.pollinations.ai/prompt/{{ $json.output }}",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"width\"  : \"{{ $('Edit Fields').item.json.width }}\",\n  \"height\" : \"{{ $('Edit Fields').item.json.height }}\",\n  \"model\"  : \"{{ $('Edit Fields').item.json.model }}\",\n  \"speed\"  : 42,\n  \"nologo\" : true\n\n} ",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application.json"
+            },
+            {
+              "name": "Accept",
+              "value": "application.json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        976,
+        0
+      ],
+      "id": "d11f5db8-f806-4919-8011-4cc8ac044a74",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1168,
+        0
+      ],
+      "id": "8b39d6e1-413e-4ebd-9277-ebc10442cee0",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "4528b5e0-4ad7-45af-8eda-5b5ea44974f3",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        0
+      ],
+      "id": "e27b98c9-abaa-4a46-9fec-1a8531a7620f",
+      "name": "Webhook",
+      "webhookId": "4528b5e0-4ad7-45af-8eda-5b5ea44974f3"
+    }
+  ],
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5f00bba974abf03cb5183d4d65f8a9645a781b04770df6a7d08284fca87d50b3"
+  }
+}
