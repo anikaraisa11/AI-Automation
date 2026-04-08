@@ -3,7 +3,7 @@ An intelligent, full-stack Image Generation SaaS that leverages the power of n8n
 # 📖 Overview 
 *CanvasChat AI*  (branded as PixelMind) is designed to bridge the gap between simple user ideas and complex prompt engineering. While most generators require detailed technical descriptions to produce quality results, this platform uses an AI Agent architecture to automatically enhance user inputs, ensuring professional-grade aesthetics with every click.
 # 🛠 Tech Stack
-*Frontend:* Lovable (React/Vite) for a sleek, responsive user interface.
+*Frontend:* Lovable (React/Vite) for a sleek, responsive user interface.\n
 Automation Engine: n8n to orchestrate the backend logic and API communications.
 LLM (The Brain): Google Gemini for intelligent prompt expansion and creative refinement.
 Image Generation: Pollinations AI (Flux model) for high-speed, high-quality image rendering.
