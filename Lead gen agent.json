@@ -1,0 +1,374 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "https://console.apify.com/actors/2Mdma1N6Fd0y3QEjR/input",
+          "mode": "url"
+        },
+        "customBody": "={\n    \"includeWebResults\": false,\n    \"language\": \"en\",\n    \"locationQuery\": \"{{ $json.body.location }}\",\n    \"maxCrawledPlacesPerSearch\": {{ $json.body.number_of_results }},\n    \"maximumLeadsEnrichmentRecords\": 0,\n    \"scrapeContacts\": false,\n    \"scrapeDirectories\": false,\n    \"scrapePlaceDetailPage\": false,\n    \"scrapeSocialMediaProfiles\": {\n        \"facebooks\": false,\n        \"instagrams\": false,\n        \"tiktoks\": false,\n        \"twitters\": false,\n        \"youtubes\": false\n    },\n    \"scrapeTableReservationProvider\": false,\n    \"searchStringsArray\": [\n        \"{{ $json.body.query }}\"\n    ],\n    \"skipClosedPlaces\": false\n} "
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4caa36f0-a0e3-4f43-a864-3b6008988b9c",
+      "name": "Run an Actor",
+      "credentials": {
+        "apifyApi": {
+          "id": "oSWPOgsmXXSrryqS",
+          "name": "Apify account 91"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.storageIds.datasets.default }}",
+        "options": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "51af0bc2-143d-4c76-b41c-d3fbe57e4023",
+      "name": "Get dataset items",
+      "credentials": {
+        "apifyApi": {
+          "id": "oSWPOgsmXXSrryqS",
+          "name": "Apify account 91"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "83b8b856-922a-491c-9e0c-a7c285515992",
+              "leftValue": "={{ $json.permanentlyClosed }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "cfbf2ba6-8722-4f70-a87b-3c048fd9222e",
+              "leftValue": "={{ $json.temporarilyClosed }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "bc2dd125-c915-431b-823f-67346d0f58da",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        800,
+        0
+      ],
+      "id": "17cd6d84-bf02-4705-ad6e-bfcf2e35cf97",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role:\nYou are a professional Business Research Assistant AI. Your job is to collect, analyze, and organize business-related information in a clean, structured, and easy-to-read format. You act like a reliable researcher who delivers accurate and well-formatted data for lead generation and outreach purposes.\n\nGoal:\nYour goal is to help the user find and organize business information efficiently. You must present the results in a structured format so the data can be directly used for lead generation, CRM systems, or outreach campaigns.\n\nInstructions:\n\nAlways provide clear, accurate, and relevant business information based on the user’s request.\nOrganize all results in a consistent structured format.\nInclude only verified or realistic details (do not fabricate unknown data—leave fields blank or mark as “Not Available” if necessary).\nKeep responses concise, professional, and easy to scan.\nIf multiple businesses are requested, list them separately using the same format.\nDo not add unnecessary explanations unless asked.\nEnsure formatting is clean and ready for automation workflows.\n\nContext:\nThe user is using this AI agent inside an automation workflow (n8n) for lead generation and business research. The output will be used for storing, processing, or contacting potential leads. Therefore, structured and consistent formatting is critical.\nOutput Format Example:\n\n {\n    \"business_name\": \"{{ $json.title }}\",\n    \"website\": \"{{ $json.url }}\",\n    \"phone\": \"{{ $json.phone }}\",\n    \"address\": \"{{ $json.address }}\"\n  }",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        80
+      ],
+      "id": "61b8d0bb-e9a3-4d5c-b499-91d815d41663",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        912,
+        304
+      ],
+      "id": "e7fade1e-9515-4582-aa06-108108f7863d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "b9iBYdHGXcj5088c",
+          "name": "Google Gemini(PaLM) Api account 982"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1iGu-uHX59DDq2mfqIpHQL7LfZH59I5flscGkP4S7qTA",
+          "mode": "list",
+          "cachedResultName": "Website lead gen",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iGu-uHX59DDq2mfqIpHQL7LfZH59I5flscGkP4S7qTA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iGu-uHX59DDq2mfqIpHQL7LfZH59I5flscGkP4S7qTA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Business Name": "={{ $('Filter').item.json.title }}",
+            "Address": "={{ $('Filter').item.json.address }}",
+            "Review": "={{ $('Filter').item.json.reviewsTags }}",
+            "Domain": "={{ $('Filter').item.json.searchPageUrl }}",
+            "Phone": "={{ $('Filter').item.json.phone }}",
+            "Map Details": "={{ $('Filter').item.json.url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Domain",
+              "displayName": "Domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Review",
+              "displayName": "Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Map Details",
+              "displayName": "Map Details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Business Details",
+              "displayName": "Business Details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        272
+      ],
+      "id": "fde80068-2e63-4e8f-9bda-ce6482c56339",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hnXkTT0oRkXWo6rx",
+          "name": "Google Sheets account 528"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "c8162a62-51de-4bd7-8875-fc1b73a888ea",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "2525cf67-0752-47a6-931d-749c8819f153",
+      "name": "Webhook",
+      "webhookId": "c8162a62-51de-4bd7-8875-fc1b73a888ea"
+    }
+  ],
+  "connections": {
+    "Run an Actor": {
+      "main": [
+        [
+          {
+            "node": "Get dataset items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get dataset items": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5f00bba974abf03cb5183d4d65f8a9645a781b04770df6a7d08284fca87d50b3"
+  }
+}
