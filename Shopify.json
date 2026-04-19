@@ -1,0 +1,320 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        -48
+      ],
+      "id": "1250a664-70b8-4de2-b5a8-9c6ba88bf37b",
+      "name": "Telegram Trigger",
+      "webhookId": "cf9b0754-64aa-4da6-8aac-f127c5123be0",
+      "credentials": {
+        "telegramApi": {
+          "id": "r4lOEGIUJ7v59kw1",
+          "name": "Telegram account 244"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "#Role\n\nYou are a Shopify Automation Agent, an intelligent operations assistant designed to manage Shopify store workflows.\n\nYou are integrated with several internal tools to automate tasks related to products and orders. also when you send any information to user,it should be plain text format\n\nYour purpose is to accurately understand user intent and route each request to the correct tool, then return clear, structured responses.\nCore Objective / context\n\nYour highest priority is to:\n\nListen carefully to the user’s request and interpret the intent with precision.\n\nTrigger the correct tool according to that intent.\n\nEnsure accurate and complete data transfer between user and tool.\n\nProvide a professional, informative response that reflects the outcome of the task.\n\nWhen a new product is created, also generate a concise product summary and use case suitable for featuring the product on the Shopify storefront or marketing materials.\n\nAvailable Tools and Their Functions, Tools and node Name & Purpose Trigger Intent\n\nGet_All_Product: Retrieve all products from the Shopify store. Trigger when the user asks to view, list, or see all products.\n\nGet_All_Order: Retrieve all orders and order details. Trigger when the user asks to view, list, or check orders or order details\n\nCreate_new_product: Create a new product in the Shopify store .Trigger when the user asks to add or create a new product, also when you have created any product return to the user with product id\n\nUpdate_Product: update existing product information. Trigger when the user asks to modify, edit, or update product details such as name, price, stock, or description.\n\nDelete_Product: Delete an existing product from the Shopify store. Trigger when the user asks to remove or delete a product.\n\nOperational Guidelines\n\nAlways analyze the user’s query thoroughly before taking any action.\n\nChoose only one tool per request, based strictly on user intent.\n\nPass all relevant user-provided information to the corresponding tool.\n\nConfirm success or failure clearly and concisely after tool execution.\n\nIf the request is ambiguous, ask the user to clarify.\n\nNever perform destructive actions such as deletion without explicit user confirmation.\n\nMaintain a professional, business-appropriate tone at all times.\n\nSpecial Rule: Product Creation Enhancement\n\nWhen the Create_New_Product tool is used, follow these additional steps:\n\nUse the provided product data (name, category, price, features, etc.) to generate:\n\n\n**A Product Summary:** 2-3 sentences highlighting the product's main features, materials, quality, and appeal.\n\n**A Use Case:** 1-2 sentences explaining where, how, or why customers would use or benefit from this product.\n\nPresent the final response in the following format:\n\nExample Output:\n\nProduct \"Eco Water Bottle\" has been successfully created.\nProduct Summary:\nA modern, eco-friendly stainless steel water bottle designed to combine style and sustainability. Built for long-lasting performance and a sleek aesthetic.\n\nUse Case:\nIdeal for daily use at work, the gym, or while traveling. Keeps beverages at the perfect temperature for extended periods."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        456,
+        -48
+      ],
+      "id": "dd74cc04-4613-401d-82ed-4306ada65de7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        176
+      ],
+      "id": "3ed1939d-2d61-472f-abde-93caa4c234b5",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "b9iBYdHGXcj5088c",
+          "name": "Google Gemini(PaLM) Api account 982"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        176
+      ],
+      "id": "fef12f2f-b56e-4cb9-9193-5557eaf2d973",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.shopifyTool",
+      "typeVersion": 1,
+      "position": [
+        400,
+        176
+      ],
+      "id": "4cfd70f8-0441-4fef-9b23-0201b6dfdde8",
+      "name": "Get all products ",
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "zvOkI5suH7hIq1oe",
+          "name": "Shopify Access Token account 48"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        -48
+      ],
+      "id": "654f24dd-6f44-4c42-a162-02ebdf1ff2d2",
+      "name": "Send a text message",
+      "webhookId": "6eae74f0-5fa1-46d7-9204-54e024d51b1f",
+      "credentials": {
+        "telegramApi": {
+          "id": "r4lOEGIUJ7v59kw1",
+          "name": "Telegram account 244"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.shopifyTool",
+      "typeVersion": 1,
+      "position": [
+        528,
+        176
+      ],
+      "id": "44ab625d-215c-42d7-90aa-7010d2452efb",
+      "name": "Get all orders",
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "zvOkI5suH7hIq1oe",
+          "name": "Shopify Access Token account 48"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}",
+        "additionalFields": {
+          "body_html": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body_HTML', ``, 'string') }}",
+          "product_type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_Type', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.shopifyTool",
+      "typeVersion": 1,
+      "position": [
+        656,
+        176
+      ],
+      "id": "bcad20f3-76ef-4d9c-806b-8e43fa685119",
+      "name": "Create a new product",
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "zvOkI5suH7hIq1oe",
+          "name": "Shopify Access Token account 48"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "operation": "update",
+        "productId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_ID', ``, 'string') }}",
+        "updateFields": {}
+      },
+      "type": "n8n-nodes-base.shopifyTool",
+      "typeVersion": 1,
+      "position": [
+        784,
+        176
+      ],
+      "id": "8758d73a-df13-4d9b-91cc-678422329f55",
+      "name": "Update Product",
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "zvOkI5suH7hIq1oe",
+          "name": "Shopify Access Token account 48"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "operation": "delete",
+        "productId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.shopifyTool",
+      "typeVersion": 1,
+      "position": [
+        912,
+        176
+      ],
+      "id": "0b400725-0b94-429f-9ad6-daedd3203fe3",
+      "name": "Delete a product ",
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "zvOkI5suH7hIq1oe",
+          "name": "Shopify Access Token account 48"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all products ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a new product": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Product": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a product ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5f00bba974abf03cb5183d4d65f8a9645a781b04770df6a7d08284fca87d50b3"
+  }
+}
