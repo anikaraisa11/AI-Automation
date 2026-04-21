@@ -52,4 +52,6 @@ This project is an automated RAG-based Chatbot built on n8n. It allows an AI Age
 
 # 👤 Author
 Anika Raisa
+
+**LinkedIn:** https://www.linkedin.com/in/anikaraisabd/ 
 AI Automation Specialist & Architect of AI Systems
