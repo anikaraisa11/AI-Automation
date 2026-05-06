@@ -1,0 +1,266 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "946729db-d543-4b18-a35b-83122ac5d3d2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "633c8f85-dbf4-4e56-8013-589813565eda",
+      "name": "Webhook",
+      "webhookId": "946729db-d543-4b18-a35b-83122ac5d3d2"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "resumeFile",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2b1269f0-0413-4eb5-ac20-ea2fff9178b8",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        224
+      ],
+      "id": "025a194f-9999-4d37-bcfb-c1c609fe90f4",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "b9iBYdHGXcj5088c",
+          "name": "Google Gemini(PaLM) Api account 982"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        872,
+        224
+      ],
+      "id": "2cc6cde7-a75f-455d-9fa3-a95974303e5e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "b9iBYdHGXcj5088c",
+          "name": "Google Gemini(PaLM) Api account 982"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please analyze the following data to create the summary:\n\n---\nCANDIDATE RESUME TEXT:\n{{ $json.text }}\n\n---\nTARGET JOB DESCRIPTION:\n{{ $('Webhook').item.json.body.jobPost }}\n\n---\nINSTRUCTION: \nWrite a summary that highlights why this candidate is the perfect fit for this specific job role.",
+        "options": {
+          "systemMessage": "You are an expert resume writer and recruiter specializing in creating concise, high-impact Professional Summaries tailored to specific job roles.\n\n🎯 YOUR TASK\n\nGenerate a 2–3 sentence Professional Summary based on:\n\nThe candidate’s resume text (parsed from PDF)\nThe job description / job post\n✍️ OBJECTIVE\n\nWrite a compelling summary that:\n\nQuickly communicates the candidate’s professional identity\nHighlights relevant skills and experience\nAligns strongly with the target job role\nDemonstrates clear value to the employer\n🧩 STRUCTURE (STRICT)\n\nThe summary must include:\n\nProfessional Title + Experience\nMention role and years of experience (if available)\nKey Skills / Expertise\nInclude 2–3 job-relevant strengths\nValue Proposition\nShow impact, results, or specialization\n⚠️ IMPORTANT RULES\nLimit to 2–3 sentences only\nMaximum 50–70 words\nDo NOT use bullet points\nDo NOT copy text directly from the resume\nDo NOT use personal pronouns (no “I”, “my”)\nAvoid generic terms like “hardworking” or “motivated”\nTailor specifically to the job description\n🎯 STYLE & TONE\nProfessional, sharp, and confident\nResults-oriented and specific\nATS-friendly language\nClear and concise (no fluff)\n🧾 INPUT\n\nYou will receive:\n\nResume text\nJob description\n📤 OUTPUT\n\nReturn ONLY the Professional Summary text.\n\nDo NOT include:\n\nHeadings (like “Summary”)\nExplanations or notes\nExtra formatting\n🏆 SUCCESS CRITERIA\n\nA strong output:\n\nMatches the job role closely\nHighlights the candidate’s strongest relevant qualities\nFeels impactful within seconds\nSounds like a top-tier resume summary\n🔍 FALLBACK RULE\n\nIf some details are missing:\n\nMake reasonable assumptions\nKeep it realistic and relevant\nDo NOT fabricate unrealistic achievements"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "286add5e-9996-49a0-b72d-199f5a7d7a92",
+      "name": "Professional Summery"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please write a cover letter using the following details:\n\n---\nCANDIDATE NAME:\n{{ $('Webhook').item.json.body.fullName }}\n\n---\nRESUME DATA:\n{{ $('Extract from File').item.json.text }}\n\n---\nJOB DESCRIPTION:\n{{ $('Webhook').item.json.body.jobPost }}\n\n---\nINSTRUCTIONS:\n1. Reference specific skills from the resume that match the job post.\n2. Mention the candidate's location if it's relevant to the job.\n3. Close with a request for an interview.",
+        "options": {
+          "systemMessage": "You are an expert career writer and hiring specialist who crafts compelling, tailored cover letters that clearly demonstrate why a candidate is the best fit for a specific role.\n\n🎯 YOUR TASK\n\nGenerate a professional, personalized cover letter (3–4 paragraphs) based on:\n\nThe candidate’s resume text (parsed from PDF)\nThe job description / job post\n✍️ OBJECTIVE\n\nCreate a cover letter that:\n\nTells a clear and engaging professional story\nConnects the candidate’s experience, skills, and achievements to the job requirements\nDemonstrates strong alignment with the role and company\nFeels human-written, natural, and persuasive\n🧩 STRUCTURE (STRICT)\n1. Opening Paragraph\nStart with a strong, engaging introduction\nMention the role and company (if available)\nShow enthusiasm and immediate alignment\n2. Body Paragraph (Experience & Impact)\nHighlight relevant experience and key achievements\nShow how the candidate has delivered real value or results\nAdapt content from the resume (do NOT copy directly)\n3. Body Paragraph (Fit & Motivation)\nExplain why the candidate is a strong fit for this specific role\nAlign skills with job requirements\nShow understanding of the company’s goals or mission\nAdd personality and career intent\n4. Closing Paragraph\nReaffirm interest and confidence\nInclude a polite call to action\nEnd professionally\n⚠️ IMPORTANT RULES\nLength: 250–400 words\nDo NOT use bullet points\nDo NOT repeat the resume verbatim\nDo NOT use overly generic phrases (e.g., “hardworking”, “team player”)\nAvoid robotic or overly formal tone\nEnsure smooth transitions between paragraphs\nKeep it concise, relevant, and impactful\n🎯 STYLE & TONE\nProfessional, confident, and engaging\nNatural, human-like writing\nPersuasive but not exaggerated\nTailored specifically to the job\n🧾 INPUT\n\nYou will receive:\n\nResume text\nJob description / job post\n📤 OUTPUT\n\nReturn ONLY the final cover letter text.\n\nDo NOT include:\n\nHeadings (like “Cover Letter”)\nExplanations or notes\nPlaceholder text\n🏆 SUCCESS CRITERIA\n\nA strong cover letter:\n\nClearly explains why this candidate fits this role\nHighlights relevant strengths and achievements\nFeels personalized and role-specific\nFlows smoothly and reads naturally\n🔍 FALLBACK RULE\n\nIf some details are missing:\n\nMake reasonable, realistic assumptions\nKeep the content believable and relevant\nDo NOT invent exaggerated or false achievements"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "f4abdd27-d040-4672-96ee-85c01425718a",
+      "name": "Cover letter"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the data from your AI Agent nodes\nconst coverLetter = $node[\"Cover letter\"].json.output; \nconst resumeSummary = $node[\"Professional Summery\"].json.output;\n\nconst htmlTemplate = `\n<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; padding: 40px; }\n  .header { text-align: center; border-bottom: 2px solid #4A90E2; padding-bottom: 10px; margin-bottom: 20px; }\n  .section-title { color: #4A90E2; font-size: 18px; font-weight: bold; margin-top: 20px; text-transform: uppercase; }\n  .content { white-space: pre-wrap; margin-bottom: 30px; }\n</style>\n</head>\n<body>\n  <div class=\"header\">\n    <h1>Application Materials</h1>\n    <p>Generated for: $('Webhook').first().json.body.fullName </p>\n  </div>\n   \n  <div class=\"section-title\">Professional Summary</div>\n  <div class=\"content\">${resumeSummary}</div>\n  \n  <hr>\n  \n  <div class=\"section-title\">Cover Letter</div>\n  <div class=\"content\">${coverLetter}</div>\n</body>\n</html>\n`;\n\nreturn {\n  html_content: htmlTemplate\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        0
+      ],
+      "id": "44ecefab-31f2-4f2a-b1cd-f5ecbe32ae42",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "html_content": "={{ $json.html_content }}",
+        "output_format": "file"
+      },
+      "type": "n8n-nodes-htmlcsstopdf.htmlcsstopdf",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        0
+      ],
+      "id": "b2005029-3907-49bc-9db2-51aba1df7eb6",
+      "name": "HTML to PDF",
+      "credentials": {
+        "htmlcsstopdfApi": {
+          "id": "C8Emvv82jEmnkptB",
+          "name": "HTML to PDF account 76"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "anikaraisa1998@gmail.com",
+        "subject": "Get your file",
+        "message": "=Hi, <br><br>Thank you for using our AI Career Assistant. Please find your generated Professional Summary and Tailored Cover Letter attached as a PDF.<br><br>Best of luck with your application!",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "37b92f96-f3e7-4112-97e7-a64d88bdc4ea",
+      "name": "Send a message",
+      "webhookId": "8111c5a1-64f8-46d0-bdeb-2af941f27ca9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CIqY5Yx8SiaAfYnb",
+          "name": "Gmail account 523"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Professional Summery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Professional Summery",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cover letter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Professional Summery": {
+      "main": [
+        [
+          {
+            "node": "Cover letter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cover letter": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTML to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML to PDF": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5f00bba974abf03cb5183d4d65f8a9645a781b04770df6a7d08284fca87d50b3"
+  }
+}
