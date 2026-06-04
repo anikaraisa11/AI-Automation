@@ -1,0 +1,614 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment filename:pdf"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        48
+      ],
+      "id": "d1478f71-6ed1-4b7f-af6c-08aaecd946f8",
+      "name": "Search Invoices",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CIqY5Yx8SiaAfYnb",
+          "name": "Gmail account 523"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3954a194-0ed2-4a98-892b-7d674b0ed032",
+              "name": "attachments",
+              "value": "={{ $('Search Invoices').item.binary.keys() }}",
+              "type": "array"
+            },
+            {
+              "id": "b8692518-c2ed-4289-a7f5-2df48215a823",
+              "name": "message_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "c188b9f3-537f-4246-bfad-53d77aaf66d4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "attachments",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "62868ec7-3cd6-45aa-a986-5fe8be2ad4cb",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "message_id",
+              "field2": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        672,
+        48
+      ],
+      "id": "4cf8bf7f-328a-445d-b864-905e115ebee6",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=attachment_0",
+        "name": "={{ $('Search Invoices').item.json.subject }}_{{ $json.attachments }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "141gef0Z2r13qcwL1W34NWIinqHoS4gjZ",
+          "mode": "list",
+          "cachedResultName": "AI Automation",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/141gef0Z2r13qcwL1W34NWIinqHoS4gjZ"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        896,
+        48
+      ],
+      "id": "92a1c021-497c-49bb-8c0d-9c4eeb809e3b",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "uNGafMtgY2j8RYld",
+          "name": "Google Drive account 902"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        48
+      ],
+      "id": "caa5e2d2-7b1a-4d87-8dcd-d0a4cd0c5b72",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "uNGafMtgY2j8RYld",
+          "name": "Google Drive account 902"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        48
+      ],
+      "id": "69892a8e-5622-4192-980d-cad60d26892d",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on the text decide if the text is an invoice or not : \n{{ $json.text }}\n\nIf yes, return \"yes\", if no, return \"no\". Don't provide any additional information. Use small letters only",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1568,
+        48
+      ],
+      "id": "53571824-2112-4891-8fe5-ec9d96856317",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"status\": \"\"\n\t\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        272
+      ],
+      "id": "61996e1f-6b44-4d93-87c1-2dfba0ef5429",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "936dbed9-76fd-4e91-a176-00d39916ea9f",
+              "leftValue": "={{ $json.output.status }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        48
+      ],
+      "id": "2b455a0d-e8ae-4fe9-aa0e-a4151275b73a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Upload file').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2208,
+        192
+      ],
+      "id": "9c46b8a3-8c5b-45b8-adb8-e49c36bfd6d7",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "uNGafMtgY2j8RYld",
+          "name": "Google Drive account 902"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=#role\nYou will receive raw text extracted from PDF invoices. Your task is to accurately extract the key invoice details listed below and return them in a clean, well-structured JSON object.\n\nData to Extract\n\ninvoice_name – the invoice title or identifier\n\ncompany_name – the business that issued the invoice\n\ntotal_invoice_amount – the grand total shown on the invoice\n\nline_items – an array of objects, each containing:\n\ndescription – the item/service label\n\namount – the corresponding cost\n\nOutput Format (example):\n{\n  \"invoice_name\": \"INV-2025-7789\",\n  \"company_name\": \"Brightline Solutions Ltd.\",\n  \"total_invoice_amount\": 1549.75,\n  \"line_items\": [\n    { \"description\": \"Website development\", \"amount\": 1200 },\n    { \"description\": \"Monthly hosting\", \"amount\": 199.75 },\n    { \"description\": \"Maintenance fee\", \"amount\": 150 }\n  ]\n}\n\nRules\n\nIf any field is missing or unclear, make a reasonable assumption or return null.\n\nAlways use the most specific description available for each line item.\n\nValidate that line-item totals align with the invoice total (small rounding differences are acceptable).\n\nInput\n\nText:{{ $('Extract from File').item.json.text }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2144,
+        -208
+      ],
+      "id": "f913087b-f8dc-4416-9f4d-c922f1ed652e",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"invoice_name\": \"INV-2025-7789\",\n  \"company_name\": \"Brightline Solutions Ltd.\",\n  \"total_invoice_amount\": 1549.75,\n  \"line_items\": [\n    { \"description\": \"Website development\", \"amount\": 1200 },\n    { \"description\": \"Monthly hosting\", \"amount\": 199.75 },\n    { \"description\": \"Maintenance fee\", \"amount\": 150 }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        16
+      ],
+      "id": "46852527-f924-4868-92c7-a4a183b2c86d",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4737ca8d-e135-44be-ac8c-bd8b2aa3f03a",
+              "name": "output.line_items",
+              "value": "={{ $json.output.line_items }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2496,
+        -96
+      ],
+      "id": "0773336c-5e07-4793-a12b-8dc91ddfd091",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1584,
+        272
+      ],
+      "id": "eef1e67c-e2a6-4923-992e-d0324e0b2a56",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ZrczF4kppW7BNMJC",
+          "name": "OpenAi account 711"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2160,
+        16
+      ],
+      "id": "33484205-8ce7-4fc9-bab7-58ff7d40a40b",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ZrczF4kppW7BNMJC",
+          "name": "OpenAi account 711"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "375b1e83-06f1-80ae-9a8b-e6a07a173b26",
+          "mode": "list",
+          "cachedResultName": "invoice",
+          "cachedResultUrl": "https://app.notion.com/p/375b1e8306f180ae9a8be6a07a173b26"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2720,
+        -96
+      ],
+      "id": "3bd07dec-8770-4869-9db8-6d47f86de939",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "aH7axYq70nX5PiFM",
+          "name": "Notion account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Search Invoices').item.json.headers.from }}",
+        "subject": "={{ $('Search Invoices').item.json.headers.subject }}",
+        "emailType": "text",
+        "message": "check your notion for invoice analysis",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2944,
+        -96
+      ],
+      "id": "38d4bec1-e994-4f51-a21c-9fd7ef3edb30",
+      "name": "Send a message",
+      "webhookId": "85c960d6-0426-4362-9761-bf49f270c303",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CIqY5Yx8SiaAfYnb",
+          "name": "Gmail account 523"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Search Invoices": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5f00bba974abf03cb5183d4d65f8a9645a781b04770df6a7d08284fca87d50b3"
+  }
+}
